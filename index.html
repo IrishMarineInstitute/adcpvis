@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - effects - stereo</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="http://mqtt.marine.ie/mqtt.js"></script>
+		<style>
+			body {
+				background:#777;
+				padding:0;
+				margin:0;
+				font-weight: bold;
+				overflow:hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				color: #ffffff;
+				padding: 5px;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				z-index:1000;
+			}
+
+			a {
+				color: #ffffff;
+			}
+
+			#oldie a { color:#da0 }
+		</style>
+	</head>
+
+	<body>
+		<div id="info">
+		</div>
+
+		<script src="js/three.min.js"></script>
+<!--
+		<script src="js/effects/StereoEffect.js"></script>
+-->
+		<script src="js/Detector.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/bufferpack.js"></script>
+    <script src="js/pd0parser.js"></script>
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var container;
+
+			var camera, scene, renderer, effect, controls;
+
+			var mesh, lightMesh, geometry;
+			var spheres = [],velocities = [];
+
+			var directionalLight, pointLight;
+
+			var mouseX = 0, mouseY = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+			//document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+      velocities = [];
+      var errorHandler = function(err){
+        console.log("something went wrong loading the pd0: "+err,err);
+      }
+      var loadPd0 = function(){
+        var pd0url = "http://spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-1323/latest.pd0";
+        fetch(pd0url).then(function(response) {
+          return response.arrayBuffer();
+        }).then(function(ab) {
+          var buffer = new Uint8Array(ab);
+        new pd0parser().parse(buffer).then(function(pd0s){
+          if(pd0s.length>0){
+          init(pd0s[0]["velocity"]["data"]);
+          }
+    			animate();
+        }).catch(errorHandler);
+      }).catch(errorHandler);
+  };
+     loadPd0();
+     var client = mqtt.connect("http://mqtt.marine.ie");
+     client.on("message", function(topic, payload) {
+       var arr = new Uint8Array(payload);
+       new pd0parser().parse(arr).then(function(pd0s){
+         if(pd0s.length>0){
+           console.log("new pd0 loaded "+ new Date());
+           velocities = pd0s[0]["velocity"]["data"];
+         }
+       }).catch(errorHandler);
+     });
+    client.subscribe("spiddal-adcp");
+
+			function init(velocity_data) {
+        velocities = velocity_data;
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 100000 );
+				camera.position.z = 3200;
+
+				scene = new THREE.Scene();
+
+
+				var path = "";
+				var format = '.jpg';
+        /*
+				var urls = [
+					path + 'px' + format, path + 'nx' + format,
+					path + 'py' + format, path + 'ny' + format,
+					path + 'pz' + format, path + 'nz' + format
+				];
+*/
+        var urls = ["wnx.jpg","wnx.jpg","wpy.jpg","wnz.jpg","wnx.jpg","wnx.jpg"];
+
+				var textureCube = new THREE.CubeTextureLoader().load( urls );
+				textureCube.mapping = THREE.CubeRefractionMapping;
+
+
+        // load a texture, set wrap mode to repeat
+//        var textureCube = new THREE.TextureLoader().load( "waternormals.jpg" );
+//        textureCube.wrapS = THREE.RepeatWrapping;
+//        textureCube.wrapT = THREE.RepeatWrapping;
+//        textureCube.repeat.set( 4, 4 );
+
+
+
+        if(true){
+          var material = new THREE.MeshBasicMaterial({wireframe: true, opacity: 0.1,  color: 0x000000, transparent: true });
+          var mGlass = new THREE.MeshLambertMaterial( {
+              color: 0xffffff,
+              envMap: textureCube,
+              opacity: 0.1,
+              transparent: true,
+              wireframe: true
+            } );
+          var mesh = new THREE.Mesh(new THREE.CylinderGeometry(100, 100, 10000, 16, 1, true), material);
+          mesh.renderDepth = -1.1;
+          scene.add(mesh);
+        }
+				var material = new THREE.MeshBasicMaterial( { color: 0xffffff, envMap: textureCube, refractionRatio: 0.95 } );
+        var updown = -1;
+				for ( var i = 0; i < 500; i ++ ) {
+          var geometry = new THREE.SphereBufferGeometry( Math.random()*80+20, 32, 16 );
+          var idx = i%velocities.length;
+          var v = velocities[idx];
+          var progress = Math.random();
+					var mesh = new THREE.Mesh( geometry, material );
+          //var mesh = new THREE.Points( geometry, material );
+					mesh.position.x = 0; //Math.random() * 10000 - 5000;
+					mesh.position.y = (velocities.length - idx*2)*(5000/velocities.length)*updown;
+					mesh.position.z = 0; //Math.random() * 10000 - 5000;
+          var xvelocity = v[3]-v[1];
+          var zvelocity = v[2]-v[0];
+          var max = Math.max(xvelocity,zvelocity);
+          var sign = max<0?-1:1;
+          mesh.position.x = xvelocity*progress*5000/max*sign;
+          mesh.position.z = zvelocity*progress*5000/max*sign;
+
+					//mesh.scale.x = mesh.scale.y = mesh.scale.z = Math.random() * 3 + 1;
+					scene.add( mesh );
+
+					spheres.push( mesh );
+
+				}
+
+				// Skybox
+
+				var shader = THREE.ShaderLib[ "cube" ];
+				shader.uniforms[ "tCube" ].value = textureCube;
+
+				var material = new THREE.ShaderMaterial( {
+
+					fragmentShader: shader.fragmentShader,
+					vertexShader: shader.vertexShader,
+					uniforms: shader.uniforms,
+					side: THREE.BackSide
+
+				} ),
+
+				mesh = new THREE.Mesh( new THREE.BoxGeometry( 100000, 100000, 100000 ), material );
+				scene.add( mesh );
+
+				//
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				container.appendChild( renderer.domElement );
+
+				//effect = new THREE.StereoEffect( renderer );
+				//effect.setSize(  );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+				//
+
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+				//controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
+				//controls.enableDamping = true;
+				//controls.dampingFactor = 0.25;
+				controls.enableZoom = true;
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				windowHalfX = window.innerWidth / 2,
+				windowHalfY = window.innerHeight / 2,
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				//effect.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+        if(controls !== undefined){
+          controls.update();
+        }
+
+			}
+
+			function render() {
+        if(renderer === undefined){
+          return;
+        }
+
+				var timer = 0.0001 * Date.now();
+/*
+				camera.position.x += ( mouseX - camera.position.x ) * .05;
+				camera.position.y += ( - mouseY - camera.position.y ) * .05;
+				camera.lookAt( scene.position );
+        */
+
+				for ( var i = 0, il = spheres.length; i < il; i ++ ) {
+          var v = velocities[i%velocities.length];
+					var sphere = spheres[ i ];
+
+					sphere.position.x += (v[3]-v[1])/10;
+          sphere.position.z += (v[2]-v[0])/10;
+          if(Math.abs(sphere.position.x)>5000||Math.abs(sphere.position.z)>5000){
+            sphere.position.x=0;
+            sphere.position.z=0;
+          }
+
+
+					//sphere.position.y = 5000 * Math.sin( timer + i * 1.1 );
+
+				}
+
+				//effect.render( scene, camera );
+        renderer.render(scene, camera);
+
+
+			}
+
+		</script>
+
+	</body>
+</html>
