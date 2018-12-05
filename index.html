@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>three.js webgl - effects - stereo</title>
+    <title>pd0 cubevis</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <script src="http://mqtt.marine.ie/mqtt.js"></script>
@@ -72,17 +72,23 @@
 			}
 			var loadPd0 = function () {
 
-			    var pd0url = "http://spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-1323/latest.pd0";
+			    //var pd0url = "http://spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-1323/latest.pd0";
 			    //var pd0url = "http://spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-1323/TRDI-WHB600Hz-1323_201705.pd0";
+                            var pd0url = "http://spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-10488/latest.pd0";
 
 			    fetch(pd0url).then(function (response) {
 			        return response.arrayBuffer();
 			    }).then(function (ab) {
 			        var buffer = new Uint8Array(ab);
 			        new pd0parser().parse(buffer).then(function (pd0s) {
+                                    pd0s = pd0s.filter(x => x.velocity);
 			            if (pd0s.length > 0) {
 			                init(pd0s[0]["velocity"]["data"]);
-			            }
+			            }else{
+                                       console.log("pd0 had no velocity data",pd0url);
+                                       return;
+                                      
+                                    }
 			            animate();
 			        }).catch(errorHandler);
 			    }).catch(errorHandler);
