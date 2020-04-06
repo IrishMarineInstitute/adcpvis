@@ -4,7 +4,7 @@
     <title>pd0 cubevis</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <script src="http://mqtt.marine.ie/mqtt.js"></script>
+    <script src="//mqtt.marine.ie/mqtt.js"></script>
     <style>
         body {
             background: #777;
@@ -72,9 +72,9 @@
 			}
 			var loadPd0 = function () {
 
-			    //var pd0url = "http://spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-1323/latest.pd0";
-			    //var pd0url = "http://spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-1323/TRDI-WHB600Hz-1323_201705.pd0";
-                            var pd0url = "http://spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-10488/latest.pd0";
+			    //var pd0url = "//spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-1323/latest.pd0";
+			    //var pd0url = "//spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-1323/TRDI-WHB600Hz-1323_201705.pd0";
+                            var pd0url = "//spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-10488/latest.pd0";
 
 			    fetch(pd0url).then(function (response) {
 			        return response.arrayBuffer();
@@ -97,7 +97,7 @@
 
 			loadPd0();
 
-			var client = mqtt.connect("http://mqtt.marine.ie");
+			var client = mqtt.connect("//mqtt.marine.ie");
 
 			client.on("message", function (topic, payload) {
 			    var arr = new Uint8Array(payload);
