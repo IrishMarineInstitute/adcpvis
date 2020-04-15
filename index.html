@@ -21,7 +21,7 @@
             const adcpvis = new ADCPvis("adcp",{width: 600, height: 600});
             var loadPd0 = function () {
 
-                var pd0url = (location.hash && location.hash.substring(1)) || "https://spiddal.marine.ie/data/adcps/TRDI-WHB600Hz-10488/latest.pd0";
+                var pd0url = (location.hash && location.hash.substring(1)) || "https://irishmarineinstitute.github.io/pd0-parser/demo/TRDI-WHB600Hz-1323_20160404.pd0";
                 adcpvis.fetchPd0(pd0url);
 
             };
