@@ -1,0 +1,25 @@
+{
+  "name": "adcpvis",
+  "version": "1.0.0",
+  "description": "ADCP visualisation using three.js",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IrishMarineInstitute/cubevis.git"
+  },
+  "author": "Robert Fuller",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/IrishMarineInstitute/cubevis/issues"
+  },
+  "homepage": "https://github.com/IrishMarineInstitute/cubevis#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  }
+}
