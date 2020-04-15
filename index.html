@@ -1,14 +1,12 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>pd0 cubevis</title>
+    <title>ADCP pd0 visualisation</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <script src="//mqtt.marine.ie/mqtt.js"></script>
 </head>
 <body>
-    <div id="info">
-    </div>
+    <h1>ADCP data visualisation</h1>
     <div id="adcp"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.js"></script>
     <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>       
@@ -27,7 +25,8 @@
             };
             window.onhashchange = loadPd0;
             loadPd0();
-
     </script>
+    <p></p>
+    <a href="https://github.com/irishmarineinstitute/adcpvis">Fork me on github</a>
 </body>
 </html>
