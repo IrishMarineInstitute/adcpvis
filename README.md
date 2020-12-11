@@ -2,7 +2,7 @@
 
 Work in progress for advanced interactive marine data visualisations.
 
-[Demo](https://irishmarineinstitute.github.io/adcpis/)
+[Demo](https://irishmarineinstitute.github.io/adcpvis/)
 
 ## Usage
 
