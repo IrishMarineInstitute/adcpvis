@@ -4,6 +4,10 @@ Work in progress for advanced interactive marine data visualisations.
 
 [Demo](https://irishmarineinstitute.github.io/adcpvis/)
 
+## Acknowledgments
+
+<span style="background-color:#fff;"><img src="https://raw.githubusercontent.com/IrishMarineInstitute/zapidox/master/img/dafm.png" alt="DAFM Logo" style="height: 50px;"/> <img src="https://raw.githubusercontent.com/IrishMarineInstitute/zapidox/master/img/forasnamara.jpg" alt="Marine Institute Logo" style="height: 50px;"/> <img src="https://raw.githubusercontent.com/IrishMarineInstitute/zapidox/master/img/eu-emff.png" alt="EU EMFF Logo" style="height: 50px;"/> <img src="https://raw.githubusercontent.com/IrishMarineInstitute/zapidox/master/img/eu_sifp.jpg" alt="EU Structural Infrastructure Fund and Programme Logo" style="height: 50px;"/></span>
+
 ## Usage
 
 ```html
